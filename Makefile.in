@@ -1,0 +1,35 @@
+CC=gcc
+CFLAGS=-fPIC -g -O0 -Wall -I/usr/local/include
+LDFLAGS=-L/usr/local/lib -o
+LIBS=-lm
+TESTLIBS=-lcheck $(LIBS)
+
+## Output programs
+SONAME=libipecac.so
+LIBRARY=build/libipecac.a
+LIBRARYSO=build/$(SONAME)
+TESTBIN=build/run_test
+ALL_PROGRAMS=$(LIBRARY) $(LIBRARYSO) $(TESTBIN)
+
+## Output .o files
+LIBRARY_OBS=\
+src/bitwise.o
+
+TESTBIN_OBS=\
+test/check_bitwise.o\
+test/check_main.o
+
+all: $(ALL_PROGRAMS)
+
+$(LIBRARY): $(LIBRARY_OBS)
+	ar rcs $@ $^
+
+$(LIBRARYSO): $(LIBRARY_OBS)
+	$(CC) -shared -Wl,-soname,$(SONAME) -o $@ $^ $(LIBS)
+
+$(TESTBIN): $(LIBRARY_OBS) $(TESTBIN_OBS)
+	$(CC) $(CFLAGS) -Lbuild $(LDFLAGS) $@ $^ $(TESTLIBS)
+
+clean:
+	rm -f $(LIBRARY_OBS) $(TESTBIN_OBS) $(ALL_PROGRAMS)
+
