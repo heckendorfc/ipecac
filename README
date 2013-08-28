@@ -1,0 +1,51 @@
+ ___ ____  _____ ____    _    ____ 
+|_ _|  _ \| ____/ ___|  / \  / ___|
+ | || |_) |  _|| |     / _ \| |    
+ | ||  __/| |__| |___ / ___ \ |___ 
+|___|_|   |_____\____/_/   \_\____|
+                                   
+
+__     __            _             0.1
+\ \   / ___ _ __ ___(_) ___  _ __  
+ \ \ / / _ | '__/ __| |/ _ \| '_ \ 
+  \ V |  __| |  \__ | | (_) | | | |
+   \_/ \___|_|  |___|_|\___/|_| |_|
+
+
+Copyright 2013, Heckendorf.  All rights reserved.
+
+ ______________
+/              \
+| Introduction |
+\______________/
+
+This library is just a hobby and won't be big and professional like gmp.
+
+ _________
+/         \
+| License |
+\_________/
+
+This software library is provided as free software under the Mozilla Public 
+License (MPL) version 2.0.  This is an open source license which is reasonably
+permissive, landing somewhere inbetween BSD and GPL.  The advantage of this 
+license is that it allows for both personal and commercial use.
+
+See the file LICENSE for full details.
+
+ ______________
+/              \
+| Installation |
+\______________/
+
+./configure && make && make install
+
+ _________________________
+/                         \
+| Accuracy and Efficiency |
+\_________________________/
+
+Every effort was made to simultaneously maximize accuracy and efficiency.  
+However, no software of any ambition is completely free of bugs.  Corrections 
+and suggestions, as well as contributions, are *emphatically* welcomed.
+
