@@ -11,8 +11,10 @@ int resize_ipint(ipint_t *s, uint32_t minblocks){
 }
 
 uint32_t get_num_bits(ipint_t *s, uint32_t offset){
-	uint32_t ret=0;
+	uint32_t ret=1;
 	ipdata_t n = s->data[offset];
 
 	for(ret=0;n;ret++)n>>=1;
+
+	return ret;
 }
