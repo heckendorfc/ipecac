@@ -13,7 +13,9 @@ ALL_PROGRAMS=$(LIBRARY) $(LIBRARYSO) $(TESTBIN)
 
 ## Output .o files
 LIBRARY_OBS=\
-src/bitwise.o
+src/bitwise.o\
+src/internal.o\
+src/misc.o
 
 TESTBIN_OBS=\
 test/check_bitwise.o\
