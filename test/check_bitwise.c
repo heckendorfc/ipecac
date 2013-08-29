@@ -2,6 +2,7 @@
 #include "check_ipecac.h"
 #include "../include/bitwise.h"
 #include "../include/misc.h"
+#include "../include/convert.h"
 
 START_TEST(test_bit_and_normal_ops){
 	ipint_t a,b,r;
@@ -12,7 +13,7 @@ START_TEST(test_bit_and_normal_ops){
 
 	ipecac_bit_and(&r,&a,&b);
 
-	fail_unless(r.data[0]==0x10);
+	fail_unless(ipecac_get_long(&r)==0x10);
 
 }END_TEST
 
@@ -25,7 +26,7 @@ START_TEST(test_bit_or_normal_ops){
 
 	ipecac_bit_or(&r,&a,&b);
 
-	fail_unless(r.data[0]==0xFF);
+	fail_unless(ipecac_get_long(&r)==0xFF);
 
 }END_TEST
 

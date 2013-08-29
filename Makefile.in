@@ -14,6 +14,7 @@ ALL_PROGRAMS=$(LIBRARY) $(LIBRARYSO) $(TESTBIN)
 ## Output .o files
 LIBRARY_OBS=\
 src/bitwise.o\
+src/convert.o\
 src/internal.o\
 src/misc.o
 
