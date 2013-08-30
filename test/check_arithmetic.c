@@ -48,9 +48,14 @@ START_TEST(test_mul_normal_ops){
 	ipecac_add(&b,&a,&b); // 32
 	ipecac_init(&r,0x0);
 
-	ipecac_mul(&r,&b,&b);
+	ipecac_mul(&a,&b,&b);
 
-	fail_unless(r.data[1]==0x40000000 && r.data[0]==0);
+	fail_unless(a.data[1]==0x40000000 && a.data[0]==0);
+
+	ipecac_add(&a,&a,&b);
+	ipecac_mul(&r,&a,&a);
+
+	fail_unless(r.data[3]==0x10000000 && r.data[2]==0x40000000 && r.data[1]==0x40000000&& r.data[0]==0);
 
 }END_TEST
 
