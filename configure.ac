@@ -1,7 +1,7 @@
 ## autoconf configure.ac && autoreconf -if
 
 AC_PREREQ([2.69])
-AC_INIT([FULL-PACKAGE-NAME], [VERSION], [BUG-REPORT-ADDRESS])
+AC_INIT([IPECAC])
 AC_CONFIG_SRCDIR([include/bitwise.h])
 AC_CONFIG_HEADERS([config.h])
 
