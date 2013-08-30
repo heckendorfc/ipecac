@@ -13,7 +13,11 @@
 #define RESIZE_BLOCK_SIZE 4
 
 #define DATA_WIDTH 32
+#define LOW_HALF(x) ((x)&0x0000FFFF)
+#define HIGH_HALF(x) ((x)>>(DATA_WIDTH/2))
+#define UNHIGH_HALF(x) ((x)<<(DATA_WIDTH/2))
 typedef uint32_t ipdata_t;
+typedef uint16_t half_ipdata_t;
 typedef struct ipint_t{
 	uint8_t sign;
 	ipdata_t *data;

@@ -40,6 +40,20 @@ START_TEST(test_sub_normal_ops){
 
 }END_TEST
 
+START_TEST(test_mul_normal_ops){
+	ipint_t a,b,r;
+	
+	ipecac_init(&a,INT_MAX);
+	ipecac_init(&b,1);
+	ipecac_add(&b,&a,&b); // 32
+	ipecac_init(&r,0x0);
+
+	ipecac_mul(&r,&b,&b);
+
+	fail_unless(r.data[1]==0x40000000 && r.data[0]==0);
+
+}END_TEST
+
 Suite *arithmetic_suite(){
 	Suite *s = suite_create ("Arithmetic Operators");
 
@@ -50,6 +64,10 @@ Suite *arithmetic_suite(){
 	TCase *tc_sub = tcase_create ("Sub");
 	tcase_add_test (tc_add, test_sub_normal_ops);
 	suite_add_tcase (s, tc_sub);
+
+	TCase *tc_mul = tcase_create ("Mul");
+	tcase_add_test (tc_add, test_mul_normal_ops);
+	suite_add_tcase (s, tc_mul);
 
 	return s;
 }

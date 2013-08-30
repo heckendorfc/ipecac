@@ -1,5 +1,6 @@
 #include "../include/ipecac.h"
 #include "../include/arithmetic.h"
+#include "../include/misc.h"
 #include "internal.h"
 
 int ipecac_add(ipint_t *r, ipint_t *a, ipint_t *b){
@@ -98,4 +99,41 @@ int ipecac_sub(ipint_t *r, ipint_t *a, ipint_t *b){
 	}
 
 	return IPECAC_SUCCESS;
+}
+
+static int basic_mul(ipint_t *r, ipint_t *a, ipint_t *b){
+	int i,j;
+	ipdata_t tmp;
+	ipdata_t k;
+	half_ipdata_t *sa=(half_ipdata_t*)a->data;
+	half_ipdata_t *sb=(half_ipdata_t*)b->data;
+	half_ipdata_t *sr=(half_ipdata_t*)r->data;
+
+	r->bits_used=a->bits_used+b->bits_used;
+
+	if(r->bits_used>r->bits_allocated)
+		if(resize_ipint(r,r->bits_used/DATA_WIDTH)==IPECAC_ERROR)
+			return IPECAC_ERROR;
+
+	for(j=0;j<=(b->bits_used-1)/(DATA_WIDTH/2);j++){
+		/* // Good for small DATA_WIDTH
+		if(sb[j]==0){
+			sr[j]=0;
+			continue;
+		}
+		*/
+		k=0;
+		for(i=0;i<=(a->bits_used-1)/(DATA_WIDTH/2);i++){
+			tmp=sa[i]*sb[j]+sr[i+j]+k;
+			k=HIGH_HALF(tmp);
+			sr[i+j]=tmp;
+		}
+		sr[i+j]=k;
+	}
+
+	return IPECAC_SUCCESS;
+}
+
+int ipecac_mul(ipint_t *r, ipint_t *a, ipint_t *b){
+	return basic_mul(r,a,b,1);
 }

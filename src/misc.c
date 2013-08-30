@@ -3,6 +3,26 @@
 #include "../include/misc.h"
 #include "internal.h"
 
+int ipecac_init_b(ipint_t *s, unsigned int b){
+	int i;
+
+	s->sign=SIGN_POS;
+
+	s->bits_allocated=(b/(DATA_WIDTH/8))+1;
+	s->data=malloc(sizeof(*(s->data))*(s->bits_allocated));
+	if(s->data==NULL)
+		return IPECAC_ERROR;
+
+	for(i=1;i<INITIAL_BLOCK_SIZE;i++)
+		s->data[i]=0;
+
+	s->bits_allocated*=DATA_WIDTH;
+	s->data[0]=0;
+	s->bits_used=1;
+
+	return IPECAC_SUCCESS;
+}
+
 int ipecac_init(ipint_t *s, int x){
 	int i;
 	if(x>=0)
