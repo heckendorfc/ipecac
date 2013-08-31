@@ -8,7 +8,7 @@ int ipecac_init_b(ipint_t *s, unsigned int b){
 
 	s->sign=SIGN_POS;
 
-	s->bits_allocated=(b/(DATA_WIDTH/8))+1;
+	s->bits_allocated=b;
 	s->data=malloc(sizeof(*(s->data))*(s->bits_allocated));
 	if(s->data==NULL)
 		return IPECAC_ERROR;
