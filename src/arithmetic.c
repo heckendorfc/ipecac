@@ -439,14 +439,17 @@ int basic_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 
 int ipecac_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 	int c;
-	if((a->bits_used<DATA_WIDTH && a->data[0]==0) || (b->bits_used<DATA_WIDTH && b->data[0]==0)){
+	int qi,ri;
+	if((a->bits_used<=DATA_WIDTH && a->data[0]==0) || (b->bits_used<=DATA_WIDTH && b->data[0]==0)){
 		ipecac_set(q,0);
 		ipecac_set(r,0);
 		return IPECAC_SUCCESS;
 	}
-	else if(a->bits_used<DATA_WIDTH && b->bits_used<DATA_WIDTH){
-		ipecac_set(q,a->data[0]/b->data[0]);
-		ipecac_set(r,a->data[0]%b->data[0]);
+	else if(a->bits_used<=DATA_WIDTH && b->bits_used<=DATA_WIDTH){
+		qi=(a->data[0])/(b->data[0]);
+		ri=(a->data[0])%(b->data[0]);
+		ipecac_set(q,qi);
+		ipecac_set(r,ri);
 		return IPECAC_SUCCESS;
 	}
 	c=ipecac_cmp(a,b);

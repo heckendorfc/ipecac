@@ -112,15 +112,15 @@ Suite *arithmetic_suite(){
 	suite_add_tcase (s, tc_add);
 
 	TCase *tc_sub = tcase_create ("Sub");
-	tcase_add_test (tc_add, test_sub_normal_ops);
+	tcase_add_test (tc_sub, test_sub_normal_ops);
 	suite_add_tcase (s, tc_sub);
 
 	TCase *tc_mul = tcase_create ("Mul");
-	tcase_add_test (tc_add, test_mul_normal_ops);
+	tcase_add_test (tc_mul, test_mul_normal_ops);
 	suite_add_tcase (s, tc_mul);
 
 	TCase *tc_div = tcase_create ("Div");
-	tcase_add_test (tc_add, test_div_normal_ops);
+	tcase_add_test (tc_div, test_div_normal_ops);
 	suite_add_tcase (s, tc_div);
 
 	return s;
