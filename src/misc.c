@@ -13,11 +13,10 @@ int ipecac_init_b(ipint_t *s, unsigned int b){
 	if(s->data==NULL)
 		return IPECAC_ERROR;
 
-	for(i=1;i<INITIAL_BLOCK_SIZE;i++)
+	for(i=0;i<b;i++)
 		s->data[i]=0;
 
 	s->bits_allocated*=DATA_WIDTH;
-	s->data[0]=0;
 	s->bits_used=1;
 
 	return IPECAC_SUCCESS;
@@ -51,6 +50,8 @@ int ipecac_set(ipint_t *s, int x){
 		s->sign=SIGN_NEG;
 	s->data[0]=x;
 	s->bits_used=get_num_bits(s,0);
+
+	return IPECAC_SUCCESS;
 }
 
 int ipecac_clone(ipint_t *r, ipint_t *s){

@@ -16,6 +16,9 @@ START_TEST(test_bit_and_normal_ops){
 
 	fail_unless(ipecac_get_long(&r)==0x10);
 
+	ipecac_free(&a);
+	ipecac_free(&b);
+	ipecac_free(&r);
 }END_TEST
 
 START_TEST(test_bit_or_normal_ops){
@@ -29,6 +32,9 @@ START_TEST(test_bit_or_normal_ops){
 
 	fail_unless(ipecac_get_long(&r)==0xFF);
 
+	ipecac_free(&a);
+	ipecac_free(&b);
+	ipecac_free(&r);
 }END_TEST
 
 START_TEST(test_bit_ls_normal_ops){
@@ -42,6 +48,14 @@ START_TEST(test_bit_ls_normal_ops){
 	ipecac_bit_lshift(&r,&r,32);
 
 	fail_unless(r.data[1]==0x10000010 && r.data[0]==0);
+
+	ipecac_set(&r,0x4000);
+	ipecac_bit_lshift(&r,&r,16);
+
+	fail_unless(r.data[0]==0x40000000);
+
+	ipecac_free(&b);
+	ipecac_free(&r);
 }END_TEST
 
 START_TEST(test_bit_rs_normal_ops){
@@ -59,6 +73,9 @@ START_TEST(test_bit_rs_normal_ops){
 	ipecac_bit_rshift(&r,&r,16);
 
 	fail_unless(r.data[1]==0x1000 && r.data[0]==0x00100002);
+
+	ipecac_free(&b);
+	ipecac_free(&r);
 }END_TEST
 
 Suite *bitwise_suite(){

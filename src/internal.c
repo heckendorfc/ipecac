@@ -17,5 +17,7 @@ uint32_t get_num_bits(ipint_t *s, uint32_t offset){
 
 	for(ret=0;n;ret++)n>>=1;
 
+	if(ret==0)ret=1;
+
 	return ret;
 }

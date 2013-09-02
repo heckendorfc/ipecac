@@ -16,8 +16,10 @@ LIBRARY_OBS=\
 src/arithmetic.o\
 src/bitwise.o\
 src/convert.o\
+src/function.o\
 src/internal.o\
-src/misc.o
+src/misc.o\
+src/util.o
 
 TESTBIN_OBS=\
 test/check_arithmetic.o\

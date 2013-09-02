@@ -50,6 +50,11 @@ int ipecac_bit_lshift(ipint_t *r, ipint_t *a, unsigned int c){
 	ipdata_t carry=0;
 	int i;
 
+	if(a->bits_used==1 && a->data[0]==0){
+		ipecac_set(r,0);
+		return IPECAC_SUCCESS;
+	}
+
 	r->bits_used=a->bits_used+c;
 
 	if(r->bits_used>r->bits_allocated)
