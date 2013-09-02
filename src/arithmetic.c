@@ -9,10 +9,11 @@ int basic_add(ipint_t *r, ipint_t *a, ipint_t *b){
 	uint32_t ia = a->bits_used;
 	uint32_t ib = b->bits_used;
 	uint32_t rused=r->bits_used;
-	int i,j,k,carrybit;
+	int i,sj,j,k,carrybit;
 	ipint_t *large,*small;
 	ipdata_t tmp;
 	
+	sj=(ib-1)/DATA_WIDTH;
 	j=(ia-1)/DATA_WIDTH;
 	large=a;
 	small=b;
@@ -34,10 +35,20 @@ int basic_add(ipint_t *r, ipint_t *a, ipint_t *b){
 
 	k=0;
 
-	for(i=0;i<=j;i++){
+	for(i=0;i<=sj;i++){
 		// Set at tmp in case r==large || r==small
 		tmp=large->data[i]+small->data[i]+k;
 		if(tmp<large->data[i] && tmp<small->data[i])
+			k=1;
+		else
+			k=0;
+		r->data[i]=tmp;
+	}
+
+	for(;i<=j;i++){
+		// Set at tmp in case r==large || r==small
+		tmp=large->data[i]+k;
+		if(tmp<large->data[i])
 			k=1;
 		else
 			k=0;
@@ -475,11 +486,13 @@ static int basic_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	half_ipdata_t *sb=(half_ipdata_t*)b->data;
 	half_ipdata_t *sr=(half_ipdata_t*)r->data;
 
+
 	r->bits_used=a->bits_used+b->bits_used;
 
 	if(r->bits_used>r->bits_allocated)
 		if(resize_ipint(r,(r->bits_used+DATA_WIDTH)/DATA_WIDTH)==IPECAC_ERROR)
 			return IPECAC_ERROR;
+
 
 	for(j=0;j<=r->bits_used;j+=DATA_WIDTH)
 		r->data[j]=0;
@@ -606,6 +619,8 @@ int ipecac_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	uint32_t newsize=a->bits_used+b->bits_used;
 	int ret=0;
 	int i;
+	ipint_t hold;
+	ipint_t *or=r;
 
 	if(a->bits_used==1 || b->bits_used==1){
 		if(a->data[0]==0 || b->data[0]==0){
@@ -624,7 +639,18 @@ int ipecac_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 		if(resize_ipint(r,((newsize+DATA_WIDTH)/DATA_WIDTH)+1)==IPECAC_ERROR)
 			return IPECAC_ERROR;
 
+	if(r==a || r==b){ // workaround for x=x*y, etc
+		r=&hold;
+		ipecac_init(&hold,0);
+		ipecac_clone(&hold,or);
+	}
+
 	ret=karatsuba_mul(r,a,b);
+
+	if(r==&hold){
+		ipecac_clone(or,&hold);
+		ipecac_free(&hold);
+	}
 
 	if(ret==IPECAC_SUCCESS){
 		for(i=(r->bits_allocated-1)/DATA_WIDTH;i>=0 && r->data[i]==0;i--);

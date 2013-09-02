@@ -24,6 +24,7 @@ src/util.o
 TESTBIN_OBS=\
 test/check_arithmetic.o\
 test/check_bitwise.o\
+test/check_convert.o\
 test/check_function.o\
 test/check_main.o
 

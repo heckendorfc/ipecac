@@ -4,5 +4,6 @@
 #include "../include/ipecac.h"
 
 long ipecac_get_long(ipint_t *s);
+int ipecac_set_str(ipint_t *s, const char *str, int base);
 
 #endif
