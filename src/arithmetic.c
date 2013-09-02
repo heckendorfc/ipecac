@@ -12,7 +12,7 @@ int basic_add(ipint_t *r, ipint_t *a, ipint_t *b){
 	int i,sj,j,k,carrybit;
 	ipint_t *large,*small;
 	ipdata_t tmp;
-	
+
 	sj=(ib-1)/DATA_WIDTH;
 	j=(ia-1)/DATA_WIDTH;
 	large=a;
@@ -73,7 +73,7 @@ static int basic_sub(ipint_t *r, ipint_t *a, ipint_t *b){
 	int i,j,k;
 	ipint_t *large,*small;
 	ipdata_t tmp;
-	
+
 	j=(ia-1)/DATA_WIDTH;
 	large=a;
 	small=b;
@@ -142,7 +142,7 @@ int ipecac_sub(ipint_t *r, ipint_t *a, ipint_t *b){
 			ret=basic_add(r,b,a);
 		r->sign=as;
 	}
-	
+
 	return ret;
 }
 
@@ -178,7 +178,7 @@ int ipecac_add(ipint_t *r, ipint_t *a, ipint_t *b){
 			r->sign=bs;
 		}
 	}
-	
+
 	return ret;
 }
 
@@ -265,7 +265,7 @@ int basic_div(ipint_t *q, ipint_t *r, ipint_t *qp, ipint_t *rp, ipint_t *a, ipin
 	ipecac_bit_rshift(ap,a,DATA_WIDTH*(m-n-1));
 	apb_div(qp,rp,ap,b);
 	basic_div(q,r,qp,rp,a,b,ap,t);
-	
+
 	ipecac_lshift(qp,qp,DATA_WIDTH*(m-n-1));
 	ipecac_add(q,q,qp); // OR this?
 
@@ -290,11 +290,13 @@ static int single_div(half_ipdata_t *q, half_ipdata_t *r, half_ipdata_t *a, uint
 	ipdata_t carry=0;
 	ipdata_t tmp=0;
 
-	for(j=0;j<m;j++){
+	for(j=m-1;j>=0;j--){
 		tmp=(carry<<(DATA_WIDTH/2))+a[j];
 		q[j]=tmp/b;
 		carry=tmp%b;
 	}
+
+	r[0]=carry;
 
 	return IPECAC_SUCCESS;
 }
@@ -331,7 +333,13 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 		sr=(half_ipdata_t*)r->data;
 		sa=(half_ipdata_t*)a->data;
 		sb=(half_ipdata_t*)b->data;
-		return single_div(sq,sr,sa,m,sb[0]);
+		j=single_div(sq,sr,sa,m,sb[0]);
+		m=m/2-2;
+		if(m>0 && q->data[m]==0)
+			m--;
+		q->bits_used=m*DATA_WIDTH+get_num_bits(q,m);
+		r->bits_used=get_num_bits(r,0);
+		return j;
 	}
 	//if(a->bits_used+DATA_WIDTH<a->bits_allocated
 
@@ -386,7 +394,7 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 			ipecac_bit_lshift(&d,&d,i*(DATA_WIDTH/2));
 		if((c=ipecac_cmp(&u,&d))>=0)
 			ipecac_sub(&u,&u,&d);
-		
+
 		/* D5: Test remainder */
 		sq[m-1-j]=ns;
 		if(c<0){
@@ -595,7 +603,7 @@ static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	for(i=0;i<m;i++)
 		p1.data[i]=0;
 
-	
+
 	p2.bits_used+=2*m*DATA_WIDTH;
 	p1.bits_used+=m*DATA_WIDTH;
 
