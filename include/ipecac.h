@@ -16,15 +16,16 @@
 #define DATA_WIDTH 32
 typedef uint32_t ipdata_t;
 typedef uint16_t half_ipdata_t;
+#define LOW_HALF(x) ((x)&0x0000FFFF)
 #elif UINTPTR_MAX == 0xffffffffffffffff
 #define DATA_WIDTH 64
 typedef uint64_t ipdata_t;
 typedef uint32_t half_ipdata_t;
+#define LOW_HALF(x) ((x)&0x00000000FFFFFFFF)
 #else
 #error "Unsupported platform."
 #endif
 
-#define LOW_HALF(x) ((x)&0x0000FFFF)
 #define HIGH_HALF(x) ((x)>>(DATA_WIDTH/2))
 #define UNHIGH_HALF(x) ((x)<<(DATA_WIDTH/2))
 typedef struct ipint_t{

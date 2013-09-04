@@ -14,11 +14,11 @@ START_TEST(test_set_str_normal_ops){
 
 	ipecac_set_str(&r,"8590065666",10);
 
-	fail_unless(r.data[1]==0x2 && r.data[0]==0x00020002);
+	fail_unless((r.data[1]==0x2 && r.data[0]==0x00020002) || r.data[0]==0x200020002);
 
 	ipecac_set_str(&r,"300030003",16);
 
-	fail_unless(r.data[1]==0x3 && r.data[0]==0x00030003);
+	fail_unless((r.data[1]==0x3 && r.data[0]==0x00030003) || r.data[0]==0x300030003);
 
 	ipecac_free(&r);
 }END_TEST
@@ -29,13 +29,11 @@ START_TEST(test_get_str_normal_ops){
 
 	ipecac_init(&r,0);
 
-	ipecac_set_str(&r,"8590065666",10);
-
-	fail_unless(r.data[1]==0x2 && r.data[0]==0x00020002);
+	ipecac_set_str(&r,"85900656668590065666",10);
 
 	ipecac_get_str(&r,&s,10);
 
-	fail_unless(strcmp(s,"8590065666")==0);
+	fail_unless(strcmp(s,"85900656668590065666")==0);
 
 	ipecac_free(&r);
 }END_TEST

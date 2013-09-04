@@ -306,7 +306,7 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 	ipint_t ni,nj;
 	uint32_t m,n;
 	ipdata_t ns,nt;
-	int i;
+	ipdata_t i;
 	int j;
 	int c;
 	uint32_t f;
@@ -334,7 +334,7 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 		sa=(half_ipdata_t*)a->data;
 		sb=(half_ipdata_t*)b->data;
 		j=single_div(sq,sr,sa,m,sb[0]);
-		m=m/2-2;
+		m=(m-2)/2;
 		if(m>0 && q->data[m]==0)
 			m--;
 		q->bits_used=m*DATA_WIDTH+get_num_bits(q,m);
@@ -344,7 +344,8 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 	//if(a->bits_used+DATA_WIDTH<a->bits_allocated
 
 	/* D1: Normalize */
-	i=(1<<(DATA_WIDTH/2))/(LOW_HALF(b->data[n])+1);
+	i=((half_ipdata_t)~0)/(HIGH_HALF(b->data[(n-1)/2])+1);
+	//i=((ipdata_t)1<<(DATA_WIDTH/2))/(LOW_HALF(b->data[n])+1);
 	for(f=0;i;f++)i>>=1;
 	f--;
 	ipecac_bit_lshift(&u,a,f);
@@ -367,7 +368,7 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 			ns=(half_ipdata_t)(~0);
 		}
 		else{
-			ns=((sa[m+n-1-j]<<(DATA_WIDTH/2))|sa[m+n-1-j-1])/sb[n-1];
+			ns=(((ipdata_t)sa[m+n-1-j]<<(DATA_WIDTH/2))|sa[m+n-1-j-1])/sb[n-1];
 		}
 		do{
 			ni.bits_used=get_num_bits(&ni,0);
@@ -375,7 +376,7 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 			nj.bits_used=get_num_bits(&nj,0);
 			ipecac_mul(&d,&ni,&nj);
 
-			nt=(sa[m+n-1-j]<<(DATA_WIDTH/2))|sa[m+n-1-j-1];
+			nt=((ipdata_t)sa[m+n-1-j]<<(DATA_WIDTH/2))|sa[m+n-1-j-1];
 			nj.bits_used=get_num_bits(&nj,0);
 
 			ipecac_sub(&dq,&nj,&d);
@@ -408,8 +409,8 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 
 		/* D7: Loop on j */
 	}
-	i=m/2-1;
-	q->bits_used=i*DATA_WIDTH+get_num_bits(q,i);
+	j=(m-1)/2;
+	q->bits_used=j*DATA_WIDTH+get_num_bits(q,j);
 	ipecac_bit_rshift(r,&u,f);
 	r->bits_used=(n-2)*DATA_WIDTH+get_num_bits(r,n-2);
 
@@ -458,7 +459,7 @@ int basic_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 
 int ipecac_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 	int c;
-	int qi,ri;
+	ipdata_t qi,ri;
 	if((a->bits_used<=DATA_WIDTH && a->data[0]==0) || (b->bits_used<=DATA_WIDTH && b->data[0]==0)){
 		ipecac_set(q,0);
 		ipecac_set(r,0);
@@ -467,8 +468,10 @@ int ipecac_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 	else if(a->bits_used<=DATA_WIDTH && b->bits_used<=DATA_WIDTH){
 		qi=(a->data[0])/(b->data[0]);
 		ri=(a->data[0])%(b->data[0]);
-		ipecac_set(q,qi);
-		ipecac_set(r,ri);
+		q->data[0]=qi;
+		r->data[0]=ri;
+		q->bits_used=get_num_bits(q,0);
+		r->bits_used=get_num_bits(r,0);
 		return IPECAC_SUCCESS;
 	}
 	c=ipecac_cmp(a,b);
@@ -514,7 +517,7 @@ static int basic_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 		*/
 		k=0;
 		for(i=0;i<=(a->bits_used-1)/(DATA_WIDTH/2);i++){
-			tmp=sa[i]*sb[j]+sr[i+j]+k;
+			tmp=(ipdata_t)sa[i]*(ipdata_t)sb[j]+(ipdata_t)sr[i+j]+k;
 			k=HIGH_HALF(tmp);
 			sr[i+j]=tmp;
 		}
@@ -557,8 +560,8 @@ static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	ipint_t r1,r2;
 	ipint_t ha,la,hb,lb;
 	ipint_t p0,p1,p2;
-	const uint32_t asize=(a->bits_used/DATA_WIDTH)+1;
-	const uint32_t bsize=(b->bits_used/DATA_WIDTH)+1;
+	const uint32_t asize=((a->bits_used-1)/DATA_WIDTH)+1;
+	const uint32_t bsize=((b->bits_used-1)/DATA_WIDTH)+1;
 	const uint32_t m=(asize>bsize?asize:bsize)-1;
 	int ret=0;
 
@@ -593,6 +596,9 @@ static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	ret|=ipecac_sub(&p1,&p1,&p2);
 	ret|=ipecac_sub(&p1,&p1,&p0);
 
+	ipecac_bit_lshift(&p1,&p1,m*DATA_WIDTH);
+	ipecac_bit_lshift(&p0,&p0,2*m*DATA_WIDTH);
+#if 0
 	/* Replace with shift? */
 	for(i=asize+bsize;i>=0;i--){
 		p2.data[2*m+i]=p2.data[i];
@@ -606,6 +612,7 @@ static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 
 	p2.bits_used+=2*m*DATA_WIDTH;
 	p1.bits_used+=m*DATA_WIDTH;
+#endif
 
 	ret|=ipecac_add(r,&p1,&p0);
 	ret|=ipecac_add(r,r,&p2);
@@ -653,7 +660,8 @@ int ipecac_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 		ipecac_clone(&hold,or);
 	}
 
-	ret=karatsuba_mul(r,a,b);
+	//ret=karatsuba_mul(r,a,b);
+	ret=basic_mul(r,a,b);
 
 	if(r==&hold){
 		ipecac_clone(or,&hold);
