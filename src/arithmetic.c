@@ -362,13 +362,13 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 	ipecac_set(q,0);
 
 	/* D2: Init j */
-	for(j=0;j<m;j++){
+	for(j=m+n-1;j>=n;j--){
 		/* D3: Calculate ^q */
-		if(sa[m+n-1-j]==sb[n-1]){
+		if(sa[j]==sb[n-1]){
 			ns=(half_ipdata_t)(~0);
 		}
 		else{
-			ns=(((ipdata_t)sa[m+n-1-j]<<(DATA_WIDTH/2))|sa[m+n-1-j-1])/sb[n-1];
+			ns=(((ipdata_t)sa[j]<<(DATA_WIDTH/2))|sa[j-1])/sb[n-1];
 		}
 		do{
 			ni.bits_used=get_num_bits(&ni,0);
@@ -376,12 +376,12 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 			nj.bits_used=get_num_bits(&nj,0);
 			ipecac_mul(&d,&ni,&nj);
 
-			nt=((ipdata_t)sa[m+n-1-j]<<(DATA_WIDTH/2))|sa[m+n-1-j-1];
+			nt=((ipdata_t)sa[j]<<(DATA_WIDTH/2))|sa[j-1];
 			nj.bits_used=get_num_bits(&nj,0);
 
 			ipecac_sub(&dq,&nj,&d);
 			ipecac_bit_lshift(&dq,&dq,DATA_WIDTH/2);
-			nt=sa[m+n-1-j-2];
+			nt=sa[j-2];
 			ipecac_bit_or(&dq,&dq,&nj);
 			c=ipecac_cmp(&d,&dq);
 			if(c>0)
@@ -397,10 +397,10 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 			ipecac_sub(&u,&u,&d);
 
 		/* D5: Test remainder */
-		sq[m-1-j]=ns;
+		sq[j-n]=ns;
 		if(c<0){
 			/* D6: Add back */
-			sq[m-j]--;
+			sq[j+n-1]--;
 			ipecac_add(&d,&u,r);
 			for(i=0;i<n;i++) // To skip the carry
 				u.data[i]=d.data[i];
