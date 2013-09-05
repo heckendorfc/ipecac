@@ -16,6 +16,7 @@ static const char *bigsb="647392454947635264739245494763522309638129647392454947
 
 START_TEST(pre_mult_normal_ops,arg){
 	struct multarg *ma=(struct multarg*)arg;
+	int i;
 
 	ipecac_init(&ma->r,0);
 	ipecac_init(&ma->a,0);
@@ -23,6 +24,11 @@ START_TEST(pre_mult_normal_ops,arg){
 
 	ipecac_set_str(&ma->a,bigsa,10);
 	ipecac_set_str(&ma->b,bigsb,10);
+
+	for(i=0;i<5;i++){
+		ipecac_mul(&ma->a,&ma->a,&ma->a);
+		ipecac_mul(&ma->b,&ma->b,&ma->b);
+	}
 }END_TEST
 
 START_TEST(test_mult_normal_ops,arg){
