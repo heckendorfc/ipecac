@@ -31,8 +31,8 @@ typedef uint32_t half_ipdata_t;
 typedef struct ipint_t{
 	uint8_t sign;
 	ipdata_t *data;
-	uint32_t bits_allocated;
-	uint32_t bits_used;
+	uint32_t allocated;
+	uint32_t used;
 }ipint_t;
 
 #endif

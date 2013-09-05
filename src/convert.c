@@ -29,7 +29,7 @@ static int set_hex_str(ipint_t *s, const char *str){
 		return IPECAC_ERROR;
 
 	tmp.sign=SIGN_POS;
-	tmp.bits_allocated=DATA_WIDTH;
+	tmp.allocated=1;
 	tmp.data=&ti;
 
 	ipecac_set(s,0);
@@ -42,7 +42,7 @@ static int set_hex_str(ipint_t *s, const char *str){
 		ti=ret;
 		shift=i*4;
 		ipecac_bit_lshift(s,s,shift);
-		tmp.bits_used=get_num_bits(&tmp,0);
+		tmp.used=1;
 		ipecac_bit_or(s,s,&tmp);
 	}while(*ptr);
 
@@ -66,8 +66,9 @@ static int set_decimal_str(ipint_t *s, const char *str){
 		return IPECAC_ERROR;
 
 	tmp.sign=SIGN_POS;
-	tmp.bits_allocated=DATA_WIDTH;
+	tmp.allocated=1;
 	tmp.data=&ti;
+	tmp.used=1;
 
 	ipecac_set(s,0);
 	ptr=str;
@@ -78,10 +79,8 @@ static int set_decimal_str(ipint_t *s, const char *str){
 		ret=strtol(buf,NULL,10);
 		shift=pow(10,i);
 		ti=shift;
-		tmp.bits_used=get_num_bits(&tmp,0);
 		ipecac_mul(s,s,&tmp);
 		ti=ret;
-		tmp.bits_used=get_num_bits(&tmp,0);
 		ipecac_add(s,s,&tmp);
 	}while(*ptr);
 
@@ -102,7 +101,7 @@ int ipecac_set_str(ipint_t *s, const char *str, int base){
 
 static int get_decimal_str(ipint_t *s, char **str){
 	int i;
-	int nchars=(s->bits_used-1)/3.32192809488736234787031+2; // log2(s)/log10(2)
+	int nchars=((s->used-1)*DATA_WIDTH+get_num_bits(s,s->used-1))/3.32192809488736234787031+2; // log2(s)/log10(2)
 	ipint_t q;
 	ipint_t r;
 	ipint_t d;
@@ -119,14 +118,14 @@ static int get_decimal_str(ipint_t *s, char **str){
 	ipecac_clone(&q,s);
 
 	d.sign=SIGN_POS;
-	d.bits_allocated=DATA_WIDTH;
+	d.allocated=1;
 	d.data=&di;
-	d.bits_used=get_num_bits(&d,0);
+	d.used=1;
 
 	end.sign=SIGN_POS;
-	end.bits_allocated=DATA_WIDTH;
+	end.allocated=1;
 	end.data=&endi;
-	end.bits_used=get_num_bits(&end,0);
+	end.used=1;
 
 	i=nchars;
 	ptr[--i]=0;

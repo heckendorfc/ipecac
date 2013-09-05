@@ -8,16 +8,15 @@ int ipecac_init_b(ipint_t *s, unsigned int b){
 
 	s->sign=SIGN_POS;
 
-	s->bits_allocated=b;
-	s->data=malloc(sizeof(*(s->data))*(s->bits_allocated));
+	s->allocated=b;
+	s->data=malloc(sizeof(*(s->data))*(s->allocated));
 	if(s->data==NULL)
 		return IPECAC_ERROR;
 
 	for(i=0;i<b;i++)
 		s->data[i]=0;
 
-	s->bits_allocated*=DATA_WIDTH;
-	s->bits_used=1;
+	s->used=1;
 
 	return IPECAC_SUCCESS;
 }
@@ -36,9 +35,9 @@ int ipecac_init(ipint_t *s, int x){
 	for(i=1;i<INITIAL_BLOCK_SIZE;i++)
 		s->data[i]=0;
 
-	s->bits_allocated=DATA_WIDTH*INITIAL_BLOCK_SIZE;
+	s->allocated=INITIAL_BLOCK_SIZE;
 	s->data[0]=x;
-	s->bits_used=get_num_bits(s,0);
+	s->used=1;
 
 	return IPECAC_SUCCESS;
 }
@@ -49,24 +48,24 @@ int ipecac_set(ipint_t *s, int x){
 	else
 		s->sign=SIGN_NEG;
 	s->data[0]=x;
-	s->bits_used=get_num_bits(s,0);
+	s->used=1;
 
 	return IPECAC_SUCCESS;
 }
 
 int ipecac_clone(ipint_t *r, ipint_t *s){
 	int i,end;
-	end=(s->bits_used+DATA_WIDTH)/DATA_WIDTH;
-	if(s->bits_used>r->bits_allocated)
+	end=s->used;
+	if(s->used>r->allocated)
 		if(resize_ipint(r,end+1)==IPECAC_ERROR)
 			return IPECAC_ERROR;
 
 	r->sign=s->sign;
 
-	for(i=0;i<end;i++)
+	for(i=0;i<=end;i++)
 		r->data[i]=s->data[i];
 
-	r->bits_used=s->bits_used;
+	r->used=s->used;
 
 	return IPECAC_SUCCESS;
 }
@@ -75,6 +74,6 @@ int ipecac_free(ipint_t *s){
 	if(s->data)
 		free(s->data);
 	s->data=NULL;
-	s->bits_allocated=0;
+	s->allocated=0;
 	return IPECAC_SUCCESS;
 }

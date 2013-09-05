@@ -10,12 +10,12 @@ int ipecac_cmp(ipint_t *a, ipint_t *b){
 		else
 			return -1;
 	}
-	if(a->bits_used>b->bits_used)
+	if(a->used>b->used)
 		ret=1;
-	else if(b->bits_used>a->bits_used)
+	else if(b->used>a->used)
 		ret=-1;
 	else{
-		for(i=(a->bits_used-1)/DATA_WIDTH;i>=0;i--){
+		for(i=a->used-1;i>=0;i--){
 			if(a->data[i]>b->data[i]){
 				ret=1;
 				break;
