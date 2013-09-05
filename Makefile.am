@@ -20,12 +20,8 @@ test/check_main.o
 endif
 
 
-# FIXME merbie
-#if WITH_BENCH
-#ipecac_SOURCES += \
-#test/check_arithmetic.o\
-#test/check_bitwise.o\
-#test/check_convert.o\
-#test/check_function.o\
-#test/check_main.o
-#endif
+if WITH_BENCH
+ipecac_SOURCES += \
+benchmark/bench_arithmetic.o\
+benchmark/bench_main.o
+endif
