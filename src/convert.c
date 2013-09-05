@@ -52,8 +52,8 @@ static int set_hex_str(ipint_t *s, const char *str){
 }
 
 static int set_decimal_str(ipint_t *s, const char *str){
-	const int nchars=log10(LONG_MAX);
-	int shift;
+	const int nchars=log10(LONG_MAX)-1;
+	ipdata_t shift;
 	ipint_t tmp;
 	ipdata_t ti;
 	long ret;
@@ -102,7 +102,7 @@ int ipecac_set_str(ipint_t *s, const char *str, int base){
 
 static int get_decimal_str(ipint_t *s, char **str){
 	int i;
-	int nchars=s->bits_used*log10(2)+1;
+	int nchars=(s->bits_used-1)/3.32192809488736234787031+2; // log2(s)/log10(2)
 	ipint_t q;
 	ipint_t r;
 	ipint_t d;
@@ -137,7 +137,7 @@ static int get_decimal_str(ipint_t *s, char **str){
 	}while(ipecac_cmp(&q,&end)>0);
 
 	ptr[--i]='0'+q.data[0];
-	while(i)ptr[--i]='0';
+	while(i>0)ptr[--i]='0';
 
 	*str=ptr;
 

@@ -72,6 +72,9 @@ int ipecac_clone(ipint_t *r, ipint_t *s){
 }
 
 int ipecac_free(ipint_t *s){
-	free(s->data);
+	if(s->data)
+		free(s->data);
+	s->data=NULL;
+	s->bits_allocated=0;
 	return IPECAC_SUCCESS;
 }

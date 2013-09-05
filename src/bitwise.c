@@ -56,7 +56,10 @@ int ipecac_bit_lshift(ipint_t *r, ipint_t *a, unsigned int c){
 	const uint32_t soff=c-sind*DATA_WIDTH;
 	uint32_t used=a->bits_used;
 	ipdata_t carry=0;
-	int i;
+	int i,j;
+
+	if(c==0)
+		return IPECAC_SUCCESS;
 
 	if(a->bits_used==1 && a->data[0]==0){
 		ipecac_set(r,0);
@@ -86,6 +89,9 @@ int ipecac_bit_rshift(ipint_t *r, ipint_t *a, unsigned int c){
 	uint32_t used=a->bits_used;
 	const uint32_t end=(a->bits_used-1)/DATA_WIDTH;
 	int i;
+
+	if(c==0)
+		return IPECAC_SUCCESS;
 
 	if(c>=used){
 		ipecac_set(r,0);

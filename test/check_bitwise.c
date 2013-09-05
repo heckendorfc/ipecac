@@ -45,7 +45,7 @@ START_TEST(test_bit_ls_normal_ops){
 	ipecac_init(&b,0x1);
 	ipecac_bit_lshift(&b,&b,4);
 	ipecac_bit_or(&r,&r,&b);
-	ipecac_bit_lshift(&r,&r,32);
+	ipecac_bit_lshift(&r,&r,DATA_WIDTH);
 
 	fail_unless(r.data[1]==0x10000010 && r.data[0]==0);
 
@@ -66,13 +66,13 @@ START_TEST(test_bit_rs_normal_ops){
 	ipecac_init(&b,0x1);
 	ipecac_bit_lshift(&b,&b,4);
 	ipecac_bit_or(&r,&r,&b);
-	ipecac_bit_lshift(&r,&r,32);
+	ipecac_bit_lshift(&r,&r,DATA_WIDTH);
 	ipecac_set(&b,0x1);
 	ipecac_bit_lshift(&b,&b,17);
 	ipecac_bit_or(&r,&r,&b);
 	ipecac_bit_rshift(&r,&r,16);
 
-	fail_unless(r.data[1]==0x1000 && r.data[0]==0x00100002);
+	fail_unless(r.data[1]==0x1000 && r.data[0]&0x2);
 
 	ipecac_free(&b);
 	ipecac_free(&r);
