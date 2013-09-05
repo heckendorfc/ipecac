@@ -3,13 +3,15 @@ CFLAGS=-fPIC -g -O0 -Wall -I/usr/local/include
 LDFLAGS=-L/usr/local/lib -o
 LIBS=-lm
 TESTLIBS=-lcheck $(LIBS)
+BENCHLIBS=-lcobra $(LIBS)
 
 ## Output programs
 SONAME=libipecac.so
 LIBRARY=build/libipecac.a
 LIBRARYSO=build/$(SONAME)
 TESTBIN=build/run_test
-ALL_PROGRAMS=$(LIBRARY) $(LIBRARYSO) $(TESTBIN)
+BENCHBIN=build/run_bench
+ALL_PROGRAMS=$(LIBRARY) $(LIBRARYSO) $(TESTBIN) $(BENCHBIN)
 
 ## Output .o files
 LIBRARY_OBS=\
@@ -28,6 +30,10 @@ test/check_convert.o\
 test/check_function.o\
 test/check_main.o
 
+BENCHBIN_OBS=\
+benchmark/bench_arithmetic.o\
+benchmark/bench_main.o
+
 all: $(ALL_PROGRAMS)
 
 $(LIBRARY): $(LIBRARY_OBS)
@@ -39,6 +45,9 @@ $(LIBRARYSO): $(LIBRARY_OBS)
 $(TESTBIN): $(LIBRARY_OBS) $(TESTBIN_OBS)
 	$(CC) $(CFLAGS) -Lbuild $(LDFLAGS) $@ $^ $(TESTLIBS)
 
+$(BENCHBIN): $(LIBRARY_OBS) $(BENCHBIN_OBS)
+	$(CC) $(CFLAGS) -Lbuild $(LDFLAGS) $@ $^ $(BENCHLIBS)
+
 clean:
-	rm -f $(LIBRARY_OBS) $(TESTBIN_OBS) $(ALL_PROGRAMS)
+	rm -f $(LIBRARY_OBS) $(TESTBIN_OBS) $(BENCHBIN_OBS) $(ALL_PROGRAMS)
 

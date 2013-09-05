@@ -669,7 +669,7 @@ int ipecac_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	}
 
 	if(ret==IPECAC_SUCCESS){
-		for(i=(r->bits_allocated-1)/DATA_WIDTH;i>=0 && r->data[i]==0;i--);
+		for(i=(newsize-1)/DATA_WIDTH;i>=0 && r->data[i]==0;i--);
 		if(i>=0)
 			r->bits_used=i*DATA_WIDTH+get_num_bits(r,i);
 		else
