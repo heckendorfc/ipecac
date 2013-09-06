@@ -654,15 +654,15 @@ int ipecac_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 		}
 	}
 
-	if(newsize>r->allocated)
-		if(resize_ipint(r,newsize)==IPECAC_ERROR)
-			return IPECAC_ERROR;
-
 	if(r==a || r==b){ // workaround for x=x*y, etc
 		r=&hold;
 		ipecac_init(&hold,0);
 		ipecac_clone(&hold,or);
 	}
+
+	if(newsize>r->allocated)
+		if(resize_ipint(r,newsize)==IPECAC_ERROR)
+			return IPECAC_ERROR;
 
 	//ret=karatsuba_mul(r,a,b);
 	ret=basic_mul(r,a,b);

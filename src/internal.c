@@ -3,7 +3,7 @@
 #include "internal.h"
 
 int resize_ipint(ipint_t *s, uint32_t minblocks){
-	uint32_t blocks=minblocks-s->allocated+RESIZE_BLOCK_SIZE;
+	uint32_t blocks=minblocks+RESIZE_BLOCK_SIZE;
 	s->allocated=blocks;
 	s->data=realloc(s->data,blocks*(DATA_WIDTH/8));
 	if(s->data==NULL)
