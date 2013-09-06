@@ -395,8 +395,8 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 
 		/* D4: Multiply and subtract */
 		ipecac_mul(&d,r,&ni);
-		i=(m+n-1)-(d.used); // Alignment
-		if(i)
+		i=(j)-(n); // Alignment
+		if(i>0)
 			ipecac_bit_lshift(&d,&d,i*(DATA_WIDTH/2));
 		if((c=ipecac_cmp(&u,&d))>=0)
 			ipecac_sub(&u,&u,&d);
@@ -405,11 +405,11 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 		sq[j-n]=ns;
 		if(c<0){
 			/* D6: Add back */
-			sq[j+n-1]--;
+			sq[j-n+1]--;
 			ipecac_add(&d,&u,r);
-			for(i=0;i<n;i++) // To skip the carry
+			for(i=0;i<n/2;i++) // To skip the carry
 				u.data[i]=d.data[i];
-			u.used=n-1;
+			//u.used=n-1;
 		}
 
 		/* D7: Loop on j */

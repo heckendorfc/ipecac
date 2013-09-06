@@ -56,6 +56,7 @@ int ipecac_bit_lshift(ipint_t *r, ipint_t *a, unsigned int c){
 	const uint32_t soff=c-sind*DATA_WIDTH;
 	uint32_t used=a->used;
 	ipdata_t carry=0;
+	ipdata_t low=0;
 	int i,j;
 
 	if(c==0)
@@ -73,8 +74,9 @@ int ipecac_bit_lshift(ipint_t *r, ipint_t *a, unsigned int c){
 			return IPECAC_ERROR;
 
 	for(i=used-1;i>=0;i--){
-		r->data[i+sind+1]=carry|(a->data[i]>>(DATA_WIDTH-soff));
-		carry=a->data[i]<<soff;
+		low=soff>0?(a->data[i])>>(DATA_WIDTH-soff):0;
+		r->data[i+sind+1]=carry|low;
+		carry=(a->data[i])<<soff;
 	}
 	r->data[sind]=carry;
 	for(i=sind-1;i>=0;i--)
