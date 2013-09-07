@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 bin_PROGRAMS = run_test
-run_test_LDADD = ../src/libsunbathe.la
+run_test_LDADD = ../src/libipecac.la
 run_test_SOURCES = \
 check_arithmetic.c\
 check_bitwise.c\

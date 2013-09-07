@@ -69,7 +69,7 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_run_bench_OBJECTS = bench_arithmetic.$(OBJEXT) bench_main.$(OBJEXT)
 run_bench_OBJECTS = $(am_run_bench_OBJECTS)
-run_bench_DEPENDENCIES = ../src/libsunbathe.la
+run_bench_DEPENDENCIES = ../src/libipecac.la
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -207,7 +207,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
-run_bench_LDADD = ../src/libsunbathe.la
+run_bench_LDADD = ../src/libipecac.la
 run_bench_SOURCES = \
 bench_arithmetic.c\
 bench_main.c

@@ -71,7 +71,7 @@ am_run_test_OBJECTS = check_arithmetic.$(OBJEXT) \
 	check_bitwise.$(OBJEXT) check_convert.$(OBJEXT) \
 	check_function.$(OBJEXT) check_main.$(OBJEXT)
 run_test_OBJECTS = $(am_run_test_OBJECTS)
-run_test_DEPENDENCIES = ../src/libsunbathe.la
+run_test_DEPENDENCIES = ../src/libipecac.la
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -209,7 +209,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
-run_test_LDADD = ../src/libsunbathe.la
+run_test_LDADD = ../src/libipecac.la
 run_test_SOURCES = \
 check_arithmetic.c\
 check_bitwise.c\
