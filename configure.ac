@@ -2,11 +2,12 @@
 
 AC_PREREQ([2.69])
 AC_INIT([IPECAC], [0.1])
-AC_CONFIG_SRCDIR([include/bitwise.h])
+AC_CONFIG_SRCDIR([src/arithmetic.c],[test/check_arithmetic.c],[benchmark/bench_arithmetic.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 
+LT_INIT
 
 ### Checks for programs.
 AC_PROG_CC
@@ -19,8 +20,8 @@ AC_CHECK_LIB([m], [sqrt])
 # libcheck
 AC_ARG_WITH([check], 
   [AS_HELP_STRING(--without-check, Disable libcheck support)], 
-  [], 
-  [with_check=yes]
+  [with_check=yes], 
+  [with_check=no]
 )
 
 AS_IF([test "$with_check" != no],
@@ -36,8 +37,8 @@ AM_CONDITIONAL([WITH_CHECK], [test "$with_check" != no])
 # libcobra
 AC_ARG_WITH([bench], 
   [AS_HELP_STRING(--without-bench, Disable libcobra support)], 
-  [], 
-  [with_check=yes]
+  [with_bench=yes], 
+  [with_bench=no]
 )
 
 AS_IF([test "$with_bench" != no],
@@ -66,5 +67,5 @@ AC_FUNC_REALLOC
 
 
 ### Exit
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile test/Makefile benchmark/Makefile])
 AC_OUTPUT
