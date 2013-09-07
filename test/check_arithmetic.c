@@ -13,7 +13,7 @@ static const char *bigstrb="6473924549476352";
 START_TEST(test_add_normal_ops){
 	ipint_t a,b,r;
 	char *rstr;
-	
+
 	ipecac_init(&a,0);
 	ipecac_init(&b,0);
 	ipecac_init(&r,0);
@@ -36,7 +36,7 @@ START_TEST(test_add_normal_ops){
 START_TEST(test_sub_normal_ops){
 	ipint_t a,b,r;
 	char *rstr;
-	
+
 	ipecac_init(&a,0);
 	ipecac_init(&b,0);
 	ipecac_init(&r,0);
@@ -59,7 +59,7 @@ START_TEST(test_sub_normal_ops){
 START_TEST(test_mul_normal_ops){
 	ipint_t a,b,r;
 	char *rstr;
-	
+
 	ipecac_init(&a,0);
 	ipecac_init(&b,0);
 	ipecac_init(&r,0);
@@ -82,7 +82,7 @@ START_TEST(test_mul_normal_ops){
 START_TEST(test_div_normal_ops){
 	ipint_t a,b,q,r;
 	char *rstr;
-	
+
 	ipecac_init(&a,0);
 	ipecac_init(&b,0);
 	ipecac_init(&r,0);
@@ -96,6 +96,8 @@ START_TEST(test_div_normal_ops){
 	ipecac_get_str(&q,&rstr,10);
 
 	fail_unless(strcmp("65536",rstr)==0);
+
+	free(rstr);
 
 	ipecac_set_str(&b,"9605120",10);
 

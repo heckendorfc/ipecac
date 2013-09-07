@@ -339,7 +339,7 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 		sr=(half_ipdata_t*)r->data;
 		sa=(half_ipdata_t*)a->data;
 		sb=(half_ipdata_t*)b->data;
-		j=single_div(sq,sr,sa,m,sb[0]);
+		j=single_div(sq,sr,sa,m-1,sb[0]);
 		m=a->used-1;
 		if(m>0 && q->data[m]==0)
 			m--;
@@ -560,6 +560,30 @@ static void split_ipint(ipint_t *l, ipint_t *h, ipint_t *i){
 	if(h->used==0)h->used=1;
 }
 
+static void split_ipint_fake(ipint_t *l, ipint_t *h, ipint_t *i, ipdata_t *zero){
+	int j;
+	const uint32_t mid=(i->used)/2;
+	const uint32_t end=(i->used)-mid;
+
+	l->sign=SIGN_POS;
+	l->data=i->data;
+	l->used=mid;
+	l->allocated=mid;
+	h->sign=SIGN_POS;
+	h->data=i->data+mid;
+	h->used=end;
+	h->allocated=end;
+
+	if(l->used==0){
+		l->used=1;
+		l->data=zero;
+	}
+	if(h->used==0){
+		h->used=1;
+		h->data=zero;
+	}
+}
+
 static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	int i;
 	ipint_t r1,r2;
@@ -567,10 +591,12 @@ static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	ipint_t p0,p1,p2;
 	const uint32_t asize=a->used;
 	const uint32_t bsize=b->used;
-	const uint32_t m=(asize>bsize?asize:bsize)-1;
+	const uint32_t m=(asize>bsize?asize:bsize);
+	const uint32_t n=(m+1)/2;
 	int ret=0;
+	ipdata_t zero=0;
 
-	if(a->used<=1){
+	if(asize<=1 || bsize<=1){
 		return basic_mul(r,a,b);
 	}
 
@@ -579,15 +605,15 @@ static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	ret|=ipecac_init_b(&p0,asize+bsize);
 	ret|=ipecac_init_b(&p1,m*(asize+bsize));
 	ret|=ipecac_init_b(&p2,2*m*(asize+bsize));
-	ret|=ipecac_init_b(&ha,asize);
-	ret|=ipecac_init_b(&la,asize);
-	ret|=ipecac_init_b(&hb,bsize);
-	ret|=ipecac_init_b(&lb,bsize);
+	//ret|=ipecac_init_b(&ha,asize);
+	//ret|=ipecac_init_b(&la,asize);
+	//ret|=ipecac_init_b(&hb,bsize);
+	//ret|=ipecac_init_b(&lb,bsize);
 	if(ret)
 		return ret;
 
-	split_ipint(&la,&ha,a);
-	split_ipint(&lb,&hb,b);
+	split_ipint_fake(&la,&ha,a,&zero);
+	split_ipint_fake(&lb,&hb,b,&zero);
 
 	ret|=karatsuba_mul(&p0,&la,&lb); // low*low
 	ret|=ipecac_add(&r1,&la,&ha);
@@ -601,8 +627,8 @@ static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	ret|=ipecac_sub(&p1,&p1,&p2);
 	ret|=ipecac_sub(&p1,&p1,&p0);
 
-	ipecac_bit_lshift(&p1,&p1,m*DATA_WIDTH);
-	ipecac_bit_lshift(&p0,&p0,2*m*DATA_WIDTH);
+	ipecac_bit_lshift(&p1,&p1,(n-1)*DATA_WIDTH);
+	ipecac_bit_lshift(&p2,&p2,(2*(n-1))*DATA_WIDTH);
 #if 0
 	/* Replace with shift? */
 	for(i=asize+bsize;i>=0;i--){
@@ -619,18 +645,18 @@ static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	p1.bits_used+=m*DATA_WIDTH;
 #endif
 
-	ret|=ipecac_add(r,&p1,&p0);
-	ret|=ipecac_add(r,r,&p2);
+	ret|=ipecac_add(&r1,&p1,&p0);
+	ret|=ipecac_add(r,&r1,&p2);
 
 	ipecac_free(&r1);
 	ipecac_free(&r2);
 	ipecac_free(&p0);
 	ipecac_free(&p1);
 	ipecac_free(&p2);
-	ipecac_free(&ha);
-	ipecac_free(&la);
-	ipecac_free(&hb);
-	ipecac_free(&lb);
+	//ipecac_free(&ha);
+	//ipecac_free(&la);
+	//ipecac_free(&hb);
+	//ipecac_free(&lb);
 
 	return ret;
 }
@@ -664,14 +690,14 @@ int ipecac_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 		if(resize_ipint(r,newsize)==IPECAC_ERROR)
 			return IPECAC_ERROR;
 
-	//ret=karatsuba_mul(r,a,b);
-	ret=basic_mul(r,a,b);
+	ret=karatsuba_mul(r,a,b);
+	//ret=basic_mul(r,a,b);
 
 	if(r==&hold){
 		ipecac_clone(or,&hold);
 		ipecac_free(&hold);
 	}
-
+/*
 	if(ret==IPECAC_SUCCESS){
 		for(i=newsize-1;i>=0 && or->data[i]==0;i--);
 		if(i>=0)
@@ -679,6 +705,6 @@ int ipecac_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 		else
 			or->used=1;
 	}
-
+*/
 	return IPECAC_SUCCESS;
 }
