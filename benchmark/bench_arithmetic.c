@@ -25,7 +25,7 @@ START_TEST(pre_mult_normal_ops,arg){
 	ipecac_set_str(&ma->a,bigsa,10);
 	ipecac_set_str(&ma->b,bigsb,10);
 
-	for(i=0;i<5;i++){
+	for(i=0;i<7;i++){
 		ipecac_mul(&ma->a,&ma->a,&ma->a);
 		ipecac_mul(&ma->b,&ma->b,&ma->b);
 	}

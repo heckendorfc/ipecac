@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "../include/ipecac.h"
 #include "../include/arithmetic.h"
 #include "../include/misc.h"
@@ -584,7 +585,16 @@ static void split_ipint_fake(ipint_t *l, ipint_t *h, ipint_t *i, ipdata_t *zero)
 	}
 }
 
-static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
+static ipdata_t* quick_init(ipint_t *s, uint32_t size, ipdata_t *d){
+	s->sign=SIGN_POS;
+	s->allocated=size;
+	s->used=1;
+	s->data=d;
+	s->data[0]=0;
+	return d+size;
+}
+
+static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b, ipdata_t *d){
 	int i;
 	ipint_t r1,r2;
 	ipint_t ha,la,hb,lb;
@@ -593,6 +603,8 @@ static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	const uint32_t bsize=b->used;
 	const uint32_t m=(asize>bsize?asize:bsize);
 	const uint32_t n=(m+1)/2;
+	const uint32_t sum=asize+bsize;
+	const uint32_t hsum=(sum+1)/2;
 	int ret=0;
 	ipdata_t zero=0;
 
@@ -600,26 +612,26 @@ static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 		return basic_mul(r,a,b);
 	}
 
+	d=quick_init(&r1,sum,d);
+	d=quick_init(&r2,sum,d);
+	d=quick_init(&p0,(sum-hsum)*2,d);
+	d=quick_init(&p1,sum+(sum-hsum),d);
+	d=quick_init(&p2,(sum-hsum)*4,d);
+	/*
 	ret|=ipecac_init_b(&r1,asize);
 	ret|=ipecac_init_b(&r2,bsize);
 	ret|=ipecac_init_b(&p0,asize+bsize);
 	ret|=ipecac_init_b(&p1,m*(asize+bsize));
 	ret|=ipecac_init_b(&p2,2*m*(asize+bsize));
-	//ret|=ipecac_init_b(&ha,asize);
-	//ret|=ipecac_init_b(&la,asize);
-	//ret|=ipecac_init_b(&hb,bsize);
-	//ret|=ipecac_init_b(&lb,bsize);
-	if(ret)
-		return ret;
-
+	*/
 	split_ipint_fake(&la,&ha,a,&zero);
 	split_ipint_fake(&lb,&hb,b,&zero);
 
-	ret|=karatsuba_mul(&p0,&la,&lb); // low*low
+	ret|=karatsuba_mul(&p0,&la,&lb,d); // low*low
 	ret|=ipecac_add(&r1,&la,&ha);
 	ret|=ipecac_add(&r2,&lb,&hb);
-	ret|=karatsuba_mul(&p1,&r1,&r2); // (low_a+high_a)(low_b+high_b)
-	ret|=karatsuba_mul(&p2,&ha,&hb); // high*high
+	ret|=karatsuba_mul(&p1,&r1,&r2,d); // (low_a+high_a)(low_b+high_b)
+	ret|=karatsuba_mul(&p2,&ha,&hb,d); // high*high
 
 	if(ret)
 		return ret;
@@ -645,19 +657,16 @@ static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	p1.bits_used+=m*DATA_WIDTH;
 #endif
 
-	ret|=ipecac_add(&r1,&p1,&p0);
-	ret|=ipecac_add(r,&r1,&p2);
+	ret|=ipecac_add(r,&p1,&p0);
+	ret|=ipecac_add(r,r,&p2);
 
+	/*
 	ipecac_free(&r1);
 	ipecac_free(&r2);
 	ipecac_free(&p0);
 	ipecac_free(&p1);
 	ipecac_free(&p2);
-	//ipecac_free(&ha);
-	//ipecac_free(&la);
-	//ipecac_free(&hb);
-	//ipecac_free(&lb);
-
+	*/
 	return ret;
 }
 
@@ -667,6 +676,7 @@ int ipecac_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 	int i;
 	ipint_t hold;
 	ipint_t *or=r;
+	ipdata_t *d;
 
 	if(a->used==1 || b->used==1){
 		if(a->data[0]==0 || b->data[0]==0){
@@ -690,14 +700,21 @@ int ipecac_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 		if(resize_ipint(r,newsize)==IPECAC_ERROR)
 			return IPECAC_ERROR;
 
-	ret=karatsuba_mul(r,a,b);
-	//ret=basic_mul(r,a,b);
+	if(0 && a->used>5 && b->used>5){ // Change this threshold
+		d=malloc(sizeof(*d)*3*(4*newsize+2+(3*(int)(newsize/2))));
+		if(d==NULL)
+			return IPECAC_ERROR;
+		ret=karatsuba_mul(r,a,b,d);
+		free(d);
+	}
+	else
+		ret=basic_mul(r,a,b);
 
 	if(r==&hold){
 		ipecac_clone(or,&hold);
 		ipecac_free(&hold);
 	}
-/*
+	/*
 	if(ret==IPECAC_SUCCESS){
 		for(i=newsize-1;i>=0 && or->data[i]==0;i--);
 		if(i>=0)

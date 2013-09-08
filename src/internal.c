@@ -11,10 +11,9 @@ int resize_ipint(ipint_t *s, uint32_t minblocks){
 	return IPECAC_SUCCESS;
 }
 
-uint32_t get_num_bits(ipint_t *s, uint32_t offset){
+uint32_t int_log2(ipdata_t n){
 	uint32_t shift=DATA_WIDTH/2;
 	uint32_t size=shift;
-	ipdata_t n = s->data[offset];
 	const ipdata_t mask=~0;
 
 	if(n==0 || n==1)
@@ -36,4 +35,10 @@ uint32_t get_num_bits(ipint_t *s, uint32_t offset){
 		}
 	}
 	return shift;
+}
+
+uint32_t get_num_bits(ipint_t *s, uint32_t offset){
+	ipdata_t n = s->data[offset];
+
+	return int_log2(n);
 }
