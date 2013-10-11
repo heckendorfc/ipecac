@@ -117,13 +117,13 @@ int ipecac_sub(ipint_t *r, ipint_t *a, ipint_t *b){
 	int ret;
 
 	/* TODO: Make an abs_cmp function */
-	a->sign=SIGN_POS;
-	b->sign=SIGN_POS;
+	//a->sign=SIGN_POS;
+	//b->sign=SIGN_POS;
 
-	c=ipecac_cmp(a,b);
+	c=ipecac_abs_cmp(a,b);
 
-	a->sign=as;
-	b->sign=bs;
+	//a->sign=as;
+	//b->sign=bs;
 
 	if(as==bs){
 		if(c>=0){
@@ -153,13 +153,13 @@ int ipecac_add(ipint_t *r, ipint_t *a, ipint_t *b){
 	int ret;
 
 	/* TODO: Make an abs_cmp function */
-	a->sign=SIGN_POS;
-	b->sign=SIGN_POS;
+	//a->sign=SIGN_POS;
+	//b->sign=SIGN_POS;
 
-	c=ipecac_cmp(a,b);
+	c=ipecac_abs_cmp(a,b);
 
-	a->sign=as;
-	b->sign=bs;
+	//a->sign=as;
+	//b->sign=bs;
 
 	if(as==bs){
 		if(c>=0)
