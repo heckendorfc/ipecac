@@ -578,6 +578,18 @@ static ipdata_t* quick_init(ipint_t *s, uint32_t size, ipdata_t *d){
 	return d+size;
 }
 
+static void quick_lshift(ipint_t *a, const int num){
+	int i;
+	ipdata_t *adst=a->data+num;
+
+	for(i=a->used-1;i>=0;i--)
+		adst[i]=a->data[i];
+	for(i=0;i<num;i++)
+		a->data[i]=0;
+
+	a->used+=num;
+}
+
 static int karatsuba_mul(ipint_t *r, const ipint_t *a, const ipint_t *b, ipdata_t *d){
 	int i;
 	ipint_t r1,r2;
@@ -623,8 +635,10 @@ static int karatsuba_mul(ipint_t *r, const ipint_t *a, const ipint_t *b, ipdata_
 	ret|=ipecac_sub(&p1,&p1,&p2);
 	ret|=ipecac_sub(&p1,&p1,&p0);
 
-	ipecac_bit_lshift(&p1,&p1,(n-1)*DATA_WIDTH);
-	ipecac_bit_lshift(&p2,&p2,(2*(n-1))*DATA_WIDTH);
+	//ipecac_bit_lshift(&p1,&p1,(n-1)*DATA_WIDTH);
+	//ipecac_bit_lshift(&p2,&p2,(2*(n-1))*DATA_WIDTH);
+	quick_lshift(&p1,n-1);
+	quick_lshift(&p2,2*(n-1));
 #if 0
 	/* Replace with shift? */
 	for(i=asize+bsize;i>=0;i--){
@@ -684,7 +698,7 @@ int ipecac_mul(ipint_t *r, const ipint_t *a, const ipint_t *b){
 		if(resize_ipint(r,newsize)==IPECAC_ERROR)
 			return IPECAC_ERROR;
 
-	if(0 && a->used>5 && b->used>5){ // Change this threshold
+	if(1 && a->used>5 && b->used>5){ // Change this threshold
 		d=malloc(sizeof(*d)*3*(4*newsize+2+(3*(int)(newsize/2))));
 		if(d==NULL)
 			return IPECAC_ERROR;
