@@ -1,7 +1,7 @@
 #include "../include/ipecac.h"
 #include "../include/util.h"
 
-int ipecac_abs_cmp(ipint_t *a, ipint_t *b){
+int ipecac_abs_cmp(const ipint_t *a, const ipint_t *b){
 	int i;
 	int ret=0;
 
@@ -25,7 +25,7 @@ int ipecac_abs_cmp(ipint_t *a, ipint_t *b){
 	return ret;
 }
 
-int ipecac_cmp(ipint_t *a, ipint_t *b){
+int ipecac_cmp(const ipint_t *a, const ipint_t *b){
 	int i;
 	int ret=0;
 	if(a->sign!=b->sign){

@@ -6,18 +6,17 @@
 #include "../include/bitwise.h"
 #include "internal.h"
 
-int basic_add(ipint_t *r, ipint_t *a, ipint_t *b){
-	uint32_t ia = a->used;
-	uint32_t ib = b->used;
-	uint32_t rused=r->used;
-	int i,sj,j,k,carrybit;
-	ipint_t *large,*small;
+int basic_add(ipint_t *r, const ipint_t *a, const ipint_t *b){
+	const uint32_t ia = a->used;
+	const uint32_t ib = b->used;
+	const uint32_t rused=r->used;
+	int i,k,carrybit;
 	ipdata_t tmp;
+	const ipint_t *large=a;
+	const ipint_t *small=b;
+	const int sj=ib-1;
+	const int j=ia-1;
 
-	sj=(ib-1);
-	j=(ia-1);
-	large=a;
-	small=b;
 	r->used=ia;
 
 	if(rused>r->used){
@@ -66,17 +65,16 @@ int basic_add(ipint_t *r, ipint_t *a, ipint_t *b){
 	return IPECAC_SUCCESS;
 }
 
-static int basic_sub(ipint_t *r, ipint_t *a, ipint_t *b){
-	uint32_t ia = a->used;
-	uint32_t ib = b->used;
-	uint32_t rused=r->used;
-	int i,j,k;
-	ipint_t *large,*small;
+static int basic_sub(ipint_t *r, const ipint_t *a, const ipint_t *b){
+	const uint32_t ia = a->used;
+	const uint32_t ib = b->used;
+	const uint32_t rused=r->used;
+	int i,k;
+	const int j=ia;
+	const ipint_t *large=a;
+	const ipint_t *small=b;
 	ipdata_t tmp;
 
-	j=ia;
-	large=a;
-	small=b;
 	r->used=ia;
 
 	if(rused>r->used){
@@ -110,20 +108,13 @@ static int basic_sub(ipint_t *r, ipint_t *a, ipint_t *b){
 	return IPECAC_SUCCESS;
 }
 
-int ipecac_sub(ipint_t *r, ipint_t *a, ipint_t *b){
-	int as=a->sign;
-	int bs=b->sign;
+int ipecac_sub(ipint_t *r, const ipint_t *a, const ipint_t *b){
+	const int as=a->sign;
+	const int bs=b->sign;
 	int c;
 	int ret;
 
-	/* TODO: Make an abs_cmp function */
-	//a->sign=SIGN_POS;
-	//b->sign=SIGN_POS;
-
 	c=ipecac_abs_cmp(a,b);
-
-	//a->sign=as;
-	//b->sign=bs;
 
 	if(as==bs){
 		if(c>=0){
@@ -146,20 +137,13 @@ int ipecac_sub(ipint_t *r, ipint_t *a, ipint_t *b){
 	return ret;
 }
 
-int ipecac_add(ipint_t *r, ipint_t *a, ipint_t *b){
-	int as=a->sign;
-	int bs=b->sign;
+int ipecac_add(ipint_t *r, const ipint_t *a, const ipint_t *b){
+	const int as=a->sign;
+	const int bs=b->sign;
 	int c;
 	int ret;
 
-	/* TODO: Make an abs_cmp function */
-	//a->sign=SIGN_POS;
-	//b->sign=SIGN_POS;
-
 	c=ipecac_abs_cmp(a,b);
-
-	//a->sign=as;
-	//b->sign=bs;
 
 	if(as==bs){
 		if(c>=0)
@@ -285,7 +269,7 @@ static int simple_div(ipint_t *q, ipint_t *a, ipdata_t b){
 }
 */
 
-static int single_div(half_ipdata_t *q, half_ipdata_t *r, half_ipdata_t *a, uint32_t m, half_ipdata_t b){
+static int single_div(half_ipdata_t *q, half_ipdata_t *r, const half_ipdata_t *a, const uint32_t m, const half_ipdata_t b){
 	int j;
 	ipdata_t carry=0;
 	ipdata_t tmp=0;
@@ -301,7 +285,7 @@ static int single_div(half_ipdata_t *q, half_ipdata_t *r, half_ipdata_t *a, uint
 	return IPECAC_SUCCESS;
 }
 
-int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
+int knuth_div(ipint_t *q, ipint_t *r, const ipint_t *a, const ipint_t *b){
 	ipint_t u,d,dq;
 	ipint_t ni,nj;
 	uint32_t m,n;
@@ -312,8 +296,8 @@ int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 	uint32_t f;
 	half_ipdata_t *sq;
 	half_ipdata_t *sr;
-	half_ipdata_t *sa;
-	half_ipdata_t *sb;
+	const half_ipdata_t *sa;
+	const half_ipdata_t *sb;
 
 	ni.data=&ns;
 	ni.sign=SIGN_POS;
@@ -463,7 +447,7 @@ int basic_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 }
 */
 
-int ipecac_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
+int ipecac_div(ipint_t *q, ipint_t *r, const ipint_t *a, const ipint_t *b){
 	int c;
 	ipdata_t qi,ri;
 	if((a->used<=1 && a->data[0]==0) || (b->used<=1 && b->data[0]==0)){
@@ -495,14 +479,15 @@ int ipecac_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 	return knuth_div(q,r,a,b);
 }
 
-static int basic_mul(ipint_t *r, ipint_t *a, ipint_t *b){
-	int i,j;
+static int basic_mul(ipint_t *r, const ipint_t *a, const ipint_t *b){
+	int32_t i,j;
+	const uint32_t jend=b->used*2;
+	const uint32_t iend=a->used*2;
 	ipdata_t tmp;
 	ipdata_t k;
-	half_ipdata_t *sa=(half_ipdata_t*)a->data;
-	half_ipdata_t *sb=(half_ipdata_t*)b->data;
+	const half_ipdata_t *sa=(half_ipdata_t*)a->data;
+	const half_ipdata_t *sb=(half_ipdata_t*)b->data;
 	half_ipdata_t *sr=(half_ipdata_t*)r->data;
-
 
 	r->used=a->used+b->used;
 
@@ -510,11 +495,10 @@ static int basic_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 		if(resize_ipint(r,r->used)==IPECAC_ERROR)
 			return IPECAC_ERROR;
 
-
 	for(j=0;j<r->used;j++)
 		r->data[j]=0;
 
-	for(j=0;j<b->used*2;j++){
+	for(j=0;j<jend;j++){
 		/* // Good for small DATA_WIDTH
 		if(sb[j]==0){
 			sr[j]=0;
@@ -522,7 +506,7 @@ static int basic_mul(ipint_t *r, ipint_t *a, ipint_t *b){
 		}
 		*/
 		k=0;
-		for(i=0;i<a->used*2;i++){
+		for(i=0;i<iend;i++){
 			tmp=(ipdata_t)sa[i]*(ipdata_t)sb[j]+(ipdata_t)sr[i+j]+k;
 			k=HIGH_HALF(tmp);
 			sr[i+j]=tmp;
@@ -561,7 +545,7 @@ static void split_ipint(ipint_t *l, ipint_t *h, ipint_t *i){
 	if(h->used==0)h->used=1;
 }
 
-static void split_ipint_fake(ipint_t *l, ipint_t *h, ipint_t *i, ipdata_t *zero){
+static void split_ipint_fake(ipint_t *l, ipint_t *h, const ipint_t *i, ipdata_t *zero){
 	int j;
 	const uint32_t mid=(i->used)/2;
 	const uint32_t end=(i->used)-mid;
@@ -594,7 +578,7 @@ static ipdata_t* quick_init(ipint_t *s, uint32_t size, ipdata_t *d){
 	return d+size;
 }
 
-static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b, ipdata_t *d){
+static int karatsuba_mul(ipint_t *r, const ipint_t *a, const ipint_t *b, ipdata_t *d){
 	int i;
 	ipint_t r1,r2;
 	ipint_t ha,la,hb,lb;
@@ -670,8 +654,8 @@ static int karatsuba_mul(ipint_t *r, ipint_t *a, ipint_t *b, ipdata_t *d){
 	return ret;
 }
 
-int ipecac_mul(ipint_t *r, ipint_t *a, ipint_t *b){
-	uint32_t newsize=a->used+b->used;
+int ipecac_mul(ipint_t *r, const ipint_t *a, const ipint_t *b){
+	const uint32_t newsize=a->used+b->used;
 	int ret=0;
 	int i;
 	ipint_t hold;

@@ -51,7 +51,7 @@ int ipecac_bit_or(ipint_t *r, ipint_t *a, ipint_t *b){
 	return IPECAC_SUCCESS;
 }
 
-int ipecac_bit_lshift(ipint_t *r, ipint_t *a, unsigned int c){
+int ipecac_bit_lshift(ipint_t *r, const ipint_t *a, const unsigned int c){
 	const uint32_t sind=c/DATA_WIDTH;
 	const uint32_t soff=c-sind*DATA_WIDTH;
 	uint32_t used=a->used;
@@ -85,7 +85,7 @@ int ipecac_bit_lshift(ipint_t *r, ipint_t *a, unsigned int c){
 	return IPECAC_SUCCESS;
 }
 
-int ipecac_bit_rshift(ipint_t *r, ipint_t *a, unsigned int c){
+int ipecac_bit_rshift(ipint_t *r, const ipint_t *a, const unsigned int c){
 	const uint32_t sind=c/DATA_WIDTH;
 	const uint32_t soff=c-sind*DATA_WIDTH;
 	uint32_t used=a->used;

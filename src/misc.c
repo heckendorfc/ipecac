@@ -53,7 +53,7 @@ int ipecac_set(ipint_t *s, int x){
 	return IPECAC_SUCCESS;
 }
 
-int ipecac_clone(ipint_t *r, ipint_t *s){
+int ipecac_clone(ipint_t *r, const ipint_t *s){
 	int i,end;
 	end=s->used;
 	if(s->used>r->allocated)
