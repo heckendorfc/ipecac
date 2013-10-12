@@ -511,7 +511,7 @@ static int basic_mul(ipint_t *r, const ipint_t *a, const ipint_t *b){
 			k=HIGH_HALF(tmp);
 			sr[i+j]=tmp;
 		}
-		sr[i+j]=k;
+		sr[iend+j]=k;
 	}
 
 	for(j=r->used-1;j>0 && r->data[j]==0;j--);
