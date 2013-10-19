@@ -623,17 +623,17 @@ static int karatsuba_mul(ipint_t *r, const ipint_t *a, const ipint_t *b, ipdata_
 	split_ipint_fake(&la,&ha,a,&zero);
 	split_ipint_fake(&lb,&hb,b,&zero);
 
-	ret|=karatsuba_mul(&p0,&la,&lb,d); // low*low
-	ret|=ipecac_add(&r1,&la,&ha);
-	ret|=ipecac_add(&r2,&lb,&hb);
-	ret|=karatsuba_mul(&p1,&r1,&r2,d); // (low_a+high_a)(low_b+high_b)
-	ret|=karatsuba_mul(&p2,&ha,&hb,d); // high*high
+	karatsuba_mul(&p0,&la,&lb,d); // low*low
+	ipecac_add(&r1,&la,&ha);
+	ipecac_add(&r2,&lb,&hb);
+	karatsuba_mul(&p1,&r1,&r2,d); // (low_a+high_a)(low_b+high_b)
+	karatsuba_mul(&p2,&ha,&hb,d); // high*high
 
 	if(ret)
 		return ret;
 
-	ret|=ipecac_sub(&p1,&p1,&p2);
-	ret|=ipecac_sub(&p1,&p1,&p0);
+	ipecac_sub(&p1,&p1,&p2);
+	ipecac_sub(&p1,&p1,&p0);
 
 	//ipecac_bit_lshift(&p1,&p1,(n-1)*DATA_WIDTH);
 	//ipecac_bit_lshift(&p2,&p2,(2*(n-1))*DATA_WIDTH);
