@@ -99,9 +99,9 @@ int ipecac_set_str(ipint_t *s, const char *str, int base){
 }
 
 
-static int get_decimal_str(ipint_t *s, char **str){
+static int get_decimal_str(ipint_t *s, char **str, char **start){
 	int i;
-	int nchars=((s->used-1)*DATA_WIDTH+get_num_bits(s,s->used-1))/3.32192809488736234787031+2; // log2(s)/log10(2)
+	int nchars=((s->used-1)*DATA_WIDTH+get_num_bits(s,s->used-1))/3.32192809488736234787031+3; // log2(s)/log2(10)
 	ipint_t q;
 	ipint_t r;
 	ipint_t d;
@@ -136,6 +136,7 @@ static int get_decimal_str(ipint_t *s, char **str){
 	}while(ipecac_cmp(&q,&end)>0);
 
 	ptr[--i]='0'+q.data[0];
+	*start=ptr+i;
 	while(i>0)ptr[--i]='0';
 
 	*str=ptr;
@@ -143,9 +144,9 @@ static int get_decimal_str(ipint_t *s, char **str){
 	return IPECAC_SUCCESS;
 }
 
-int ipecac_get_str(ipint_t *s, char **str, int base){
+int ipecac_get_str(ipint_t *s, char **str, char **start, int base){
 	if(base==10)
-		return get_decimal_str(s,str);
+		return get_decimal_str(s,str,start);
 	else
 		return IPECAC_ERROR;
 }

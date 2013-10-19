@@ -26,14 +26,15 @@ START_TEST(test_set_str_normal_ops){
 START_TEST(test_get_str_normal_ops){
 	ipint_t r;
 	char *s;
+	char *st;
 
 	ipecac_init(&r,0);
 
 	ipecac_set_str(&r,"85900656668590065666",10);
 
-	ipecac_get_str(&r,&s,10);
+	ipecac_get_str(&r,&s,&st,10);
 
-	fail_unless(strcmp(s,"85900656668590065666")==0);
+	fail_unless(strcmp(st,"85900656668590065666")==0);
 
 	ipecac_free(&r);
 }END_TEST
