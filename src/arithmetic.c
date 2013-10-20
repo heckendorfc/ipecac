@@ -89,7 +89,7 @@ static int basic_sub(ipint_t *r, const ipint_t *a, const ipint_t *b){
 
 	k=0;
 
-	for(i=0;i<j;i++){
+	for(i=0;i<ib;i++){
 		// Set at tmp in case r==large
 		tmp=large->data[i]-small->data[i]-k;
 		if(tmp>large->data[i])
@@ -98,6 +98,14 @@ static int basic_sub(ipint_t *r, const ipint_t *a, const ipint_t *b){
 			k=0;
 		r->data[i]=tmp;
 	}
+
+	if(k){
+		r->data[i]=large->data[i]-1;
+		i++;
+	}
+
+	for(;i<ia;i++)
+		r->data[i]=large->data[i];
 
 	for(i=j-1;i>0 && r->data[i]==0;i--);
 	if(i>0)
@@ -274,7 +282,7 @@ static int single_div(half_ipdata_t *q, half_ipdata_t *r, const half_ipdata_t *a
 	ipdata_t carry=0;
 	ipdata_t tmp=0;
 
-	for(j=m-1;j>=0;j--){
+	for(j=m;j>=0;j--){
 		tmp=(carry<<(DATA_WIDTH/2))+a[j];
 		q[j]=tmp/b;
 		carry=tmp%b;
@@ -285,7 +293,7 @@ static int single_div(half_ipdata_t *q, half_ipdata_t *r, const half_ipdata_t *a
 	return IPECAC_SUCCESS;
 }
 
-int knuth_div(ipint_t *q, ipint_t *r, const ipint_t *a, const ipint_t *b){
+int knuth_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 	ipint_t u,d,dq;
 	ipint_t ni,nj;
 	uint32_t m,n;
@@ -296,6 +304,7 @@ int knuth_div(ipint_t *q, ipint_t *r, const ipint_t *a, const ipint_t *b){
 	uint32_t f;
 	half_ipdata_t *sq;
 	half_ipdata_t *sr;
+	half_ipdata_t v1;
 	const half_ipdata_t *sa;
 	const half_ipdata_t *sb;
 
@@ -332,13 +341,14 @@ int knuth_div(ipint_t *q, ipint_t *r, const ipint_t *a, const ipint_t *b){
 		r->used=1;
 		return j;
 	}
-	//if(a->bits_used+DATA_WIDTH<a->bits_allocated
 
 	/* D1: Normalize */
-	i=((half_ipdata_t)~0)/(HIGH_HALF(b->data[(n-1)/2])+1);
-	//i=((ipdata_t)1<<(DATA_WIDTH/2))/(LOW_HALF(b->data[n])+1);
+	v1=sb[n-1]; // TODO: cast as half_ipdata_t* ?
+	i=((ipdata_t)1<<(DATA_WIDTH/2))/(v1+1);
+
 	for(f=0;i;f++)i>>=1;
-	f--;
+	if(f)f--;
+
 	ipecac_bit_lshift(&u,a,f);
 	ipecac_bit_lshift(r,b,f);
 
@@ -346,12 +356,13 @@ int knuth_div(ipint_t *q, ipint_t *r, const ipint_t *a, const ipint_t *b){
 	sa=(half_ipdata_t*)u.data;
 	sb=(half_ipdata_t*)r->data;
 
-	while(sb[n-1]==0)n--;
 	m=m-n;
 
 	ni.used=1;
 	nj.used=1;
 
+	for(j=q->used-1;j>=0;j--)
+		q->data[j]=0;
 	ipecac_set(q,0);
 
 	/* D2: Init j */
@@ -364,15 +375,19 @@ int knuth_div(ipint_t *q, ipint_t *r, const ipint_t *a, const ipint_t *b){
 			ns=(((ipdata_t)sa[j]<<(DATA_WIDTH/2))|sa[j-1])/sb[n-1];
 		}
 		do{
-			nt=sb[n-2];
-			ipecac_mul(&d,&ni,&nj);
+			nt=sb[n-1];
+			ipecac_mul(&d,&ni,&nj); // calc ^qv[1]
 
-			nt=((ipdata_t)sa[j]<<(DATA_WIDTH/2))|sa[j-1];
+			nt=((ipdata_t)sa[j]<<(DATA_WIDTH/2))|sa[j-1]; // u[j]b + u[j+1]
 
-			ipecac_sub(&dq,&nj,&d);
-			ipecac_bit_lshift(&dq,&dq,DATA_WIDTH/2);
+			ipecac_sub(&dq,&nj,&d); // - ^qv[1]
+			ipecac_bit_lshift(&dq,&dq,DATA_WIDTH/2); // * b
 			nt=sa[j-2];
-			ipecac_bit_or(&dq,&dq,&nj);
+			ipecac_bit_or(&dq,&dq,&nj); // + u[j+2]
+
+			nt=sb[n-2];
+			ipecac_mul(&d,&ni,&nj); // calc ^qv[2]
+
 			c=ipecac_cmp(&d,&dq);
 			if(c>0)
 				ns--;
@@ -399,10 +414,11 @@ int knuth_div(ipint_t *q, ipint_t *r, const ipint_t *a, const ipint_t *b){
 
 		/* D7: Loop on j */
 	}
-	j=m/2;
+	//j=m/2;
+	j=(m+1)/2;
 	q->used=j;
 	ipecac_bit_rshift(r,&u,f);
-	r->used=n-1;
+	//r->used=n-1; // Should this be n/2-1 ? Do we need to set it at all?
 
 	ipecac_free(&u);
 	ipecac_free(&d);
@@ -447,9 +463,11 @@ int basic_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 }
 */
 
-int ipecac_div(ipint_t *q, ipint_t *r, const ipint_t *a, const ipint_t *b){
+int ipecac_div(ipint_t *q, ipint_t *r, ipint_t *a, ipint_t *b){
 	int c;
+	int qsize,rsize;
 	ipdata_t qi,ri;
+
 	if((a->used<=1 && a->data[0]==0) || (b->used<=1 && b->data[0]==0)){
 		ipecac_set(q,0);
 		ipecac_set(r,0);
@@ -475,6 +493,17 @@ int ipecac_div(ipint_t *q, ipint_t *r, const ipint_t *a, const ipint_t *b){
 		ipecac_clone(r,a);
 		return IPECAC_SUCCESS;
 	}
+
+	rsize=b->used+1;
+	qsize=a->used-rsize+1;
+
+	if(rsize>r->allocated)
+		if(resize_ipint(r,rsize)==IPECAC_ERROR)
+			return IPECAC_ERROR;
+
+	if(qsize>q->allocated)
+		if(resize_ipint(q,qsize)==IPECAC_ERROR)
+			return IPECAC_ERROR;
 
 	return knuth_div(q,r,a,b);
 }

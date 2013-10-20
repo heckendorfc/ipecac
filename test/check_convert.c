@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 #include <check.h>
 #include "check_ipecac.h"
@@ -6,6 +7,7 @@
 #include "../include/misc.h"
 #include "../include/convert.h"
 
+static const char *lstrtest = "2474759212146018060034179605221714198337456593024321708869587061479529987775603938855127754045566936181338939114075183455901964200052474240035667";
 
 START_TEST(test_set_str_normal_ops){
 	ipint_t r;
@@ -36,6 +38,14 @@ START_TEST(test_get_str_normal_ops){
 
 	fail_unless(strcmp(st,"85900656668590065666")==0);
 
+	free(s);
+
+	ipecac_set_str(&r,lstrtest,10);
+	ipecac_get_str(&r,&s,&st,10);
+
+	fail_unless(strcmp(st,lstrtest)==0);
+
+	free(s);
 	ipecac_free(&r);
 }END_TEST
 

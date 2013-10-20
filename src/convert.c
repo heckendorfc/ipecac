@@ -106,6 +106,7 @@ static int get_decimal_str(ipint_t *s, char **str, char **start){
 	ipint_t r;
 	ipint_t d;
 	ipint_t end;
+	ipint_t temp;
 	ipdata_t di=10,endi=9;
 	char *ptr;
 
@@ -113,9 +114,10 @@ static int get_decimal_str(ipint_t *s, char **str, char **start){
 	if(ptr==NULL)
 		return IPECAC_ERROR;
 
+	ipecac_init(&temp,0);
 	ipecac_init(&q,0);
 	ipecac_init(&r,0); // Can we fake this?
-	ipecac_clone(&q,s);
+	ipecac_clone(&temp,s);
 
 	d.sign=SIGN_POS;
 	d.allocated=1;
@@ -131,7 +133,8 @@ static int get_decimal_str(ipint_t *s, char **str, char **start){
 	ptr[--i]=0;
 
 	do{
-		ipecac_div(&q,&r,&q,&d);
+		ipecac_div(&q,&r,&temp,&d);
+		ipecac_clone(&temp,&q);
 		ptr[--i]='0'+r.data[0];
 	}while(ipecac_cmp(&q,&end)>0);
 

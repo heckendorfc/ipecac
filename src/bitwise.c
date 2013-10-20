@@ -59,8 +59,10 @@ int ipecac_bit_lshift(ipint_t *r, const ipint_t *a, const unsigned int c){
 	ipdata_t low=0;
 	int i,j;
 
-	if(c==0)
+	if(c==0){
+		ipecac_clone(r,a);
 		return IPECAC_SUCCESS;
+	}
 
 	if(a->used==1 && a->data[0]==0){
 		ipecac_set(r,0);
@@ -68,6 +70,8 @@ int ipecac_bit_lshift(ipint_t *r, const ipint_t *a, const unsigned int c){
 	}
 
 	r->used=a->used+sind;
+	if(soff>0 && (a->data[used-1]>>(DATA_WIDTH-soff))) // testing overflow
+		r->used++;
 
 	if(r->used>r->allocated)
 		if(resize_ipint(r,r->used)==IPECAC_ERROR)
@@ -92,8 +96,10 @@ int ipecac_bit_rshift(ipint_t *r, const ipint_t *a, const unsigned int c){
 	const uint32_t end=a->used-1;
 	int i;
 
-	if(c==0)
+	if(c==0){
+		ipecac_clone(r,a);
 		return IPECAC_SUCCESS;
+	}
 
 	if(c>=used*DATA_WIDTH){
 		ipecac_set(r,0);
