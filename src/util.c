@@ -42,3 +42,9 @@ int ipecac_cmp(const ipint_t *a, const ipint_t *b){
 
 	return ret;
 }
+
+int ipecac_abs(ipint_t *a){
+	a->sign=SIGN_POS;
+
+	return IPECAC_SUCCESS;
+}

@@ -5,5 +5,6 @@
 
 int ipecac_abs_cmp(const ipint_t *a, const ipint_t *b);
 int ipecac_cmp(const ipint_t *a, const ipint_t *b);
+int ipecac_abs(ipint_t *a);
 
 #endif
